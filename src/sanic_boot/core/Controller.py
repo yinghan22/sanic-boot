@@ -1,0 +1,93 @@
+"""
+@file    : Controller.py
+@author  : yingHan/嬴寒
+@email   : yinghan22@163.com
+@create  : 2025/12/3 16:12
+"""
+
+import functools
+import inspect
+import re
+from typing import Optional, Type, overload, override
+
+
+def __insert_space__(text):
+    return re.sub(r"(?<!^)(?=[A-Z])", " ", text)
+
+
+def __to_kebab_case__(text):
+    return __insert_space__(text).lower().replace(" ", "-")
+
+
+def Controller(*args, **kwargs):  # -> Callable[..., Any]:
+    """
+    Controller 控制器注册
+
+    :param uri <type:str> 命名参数，指定 Controller 的路由路径
+    """
+    if (len(args) == 1 and type(args[0]) is str) or "uri" in kwargs:
+        url: str = ""
+        if len(args) == 1:
+            uri = args[0]
+        if "uri" in kwargs:
+            uri = kwargs.get("uri")
+
+        def decoratorWithUri(cls):
+            nonlocal uri
+            setattr(cls, "__controller__", uri)
+            return cls
+
+        return decoratorWithUri
+    # else:
+    elif callable(args[0]):
+        cls = args[0]
+        uri = str(cls.__name__.replace("Controller", ""))
+        uri = __to_kebab_case__(uri)
+        setattr(cls, "__controller__", uri)
+        return cls
+
+    def decoratorNoting(cls):
+        return cls
+
+    return decoratorNoting
+
+
+# class Controller:
+
+#     def __init__(self, *args, **kwargs):
+#         self.cls: Optional[Type] = args[0] if len(args) >= 1 else None
+#         self.uri = kwargs.get("uri") if "uri" in kwargs else None
+
+#         if self.cls is not None:
+#             if self.uri is None:
+#                 self.uri = str(self.cls.__name__.replace("Controller", ""))
+#                 self.uri = __to_kebab_case__(self.uri)
+
+#             self.resetClass()
+
+#     def resetClass(self):
+#         setattr(self.cls, "__controller__", self.uri)
+
+#     @override
+#     def __call__(self):
+#         pass
+
+#     def __call__(self, cls):
+#         if self.cls is None:
+#             self.cls = cls
+
+#         if self.uri is None:
+#             self.uri = str(cls.__name__.replace("Controller", ""))
+#             self.uri = __to_kebab_case__(self.uri)
+
+#         self.resetClass()
+
+#         @functools.wraps(cls)
+#         def decorator(*args, **kwargs):
+#             return self.cls
+
+#         return decorator
+
+#     def __set_name__(self, owner, name: str):
+#         self.name = name
+#         return owner
