@@ -10,12 +10,13 @@ from configparser import ConfigParser
 from importlib import import_module
 from pathlib import Path
 from types import SimpleNamespace, ModuleType
-from typing import Iterator, Literal, Optional
+from typing import Iterator
 
 import sanic
 from sanic import Sanic, Blueprint
 from sanic_boot.Config import Config
 from tortoise import Model
+
 from .core import *
 
 projectRootDir = Path.cwd()
@@ -73,7 +74,8 @@ def loadModels():
         with open(moduleEntrypath, mode="w+"):
             pass
     moduleEntry: ModuleType = import_module(f"Models.__init__")
-    fileList: Iterator[Path] = projectRootDir.rglob("Models/**/*.py")
+    ModelsRootDir = projectRootDir / 'Models'
+    fileList: Iterator[Path] = ModelsRootDir.rglob("**/*.py")
     for fileName in fileList:
         moduleName: str = str(fileName).split(os.sep)[-1][:-3]
         module: ModuleType = import_module(f"Models.{moduleName}")
@@ -124,11 +126,13 @@ def initDatabase(app: Sanic):
                 Config.Database.database,
                 f"?driver={Config.Database.driver}" if Config.Database.driver else "",
             )
-    register_tortoise(app=app, db_url=url, modules={"models": ["Models"]}, generate_schemas=Config.Database.generate_schemas)
+    register_tortoise(app=app, db_url=url, modules={"models": ["Models"]},
+                      generate_schemas=Config.Database.generate_schemas)
 
 
 def collectViewRouter(app: Sanic):
-    fileList: Iterator[Path] = projectRootDir.rglob("Views/**/*.py")
+    viewRootDir = projectRootDir / 'Views'
+    fileList: Iterator[Path] = viewRootDir.rglob("**/*.py")
     for fileName in fileList:
         print(fileName)
         moduleName: str = str(fileName).split(os.sep)[-1][:-3]
@@ -144,7 +148,8 @@ def collectViewRouter(app: Sanic):
 
 
 def collectController(app: Sanic):
-    fileList: Iterator[Path] = projectRootDir.rglob("Controller/**/*.py")
+    controllerRootDir = projectRootDir / 'Controller'
+    fileList: Iterator[Path] = controllerRootDir.rglob("**/*.py")
     blueprintList = []
     for fileName in fileList:
         print(fileName)
@@ -199,13 +204,13 @@ docs_default_option = {
 
 
 def sanicBoot(
-    name: str,
-    router: str | None = None,
-    *,
-    blueprint: Blueprint | list[Blueprint] | None = None,
-    docs: bool = False,
-    docsConfig: dict[str, Any] = docs_default_option,
-    corsConfig: dict[str, Any] = cors_default_option,
+        name: str,
+        router: str | None = None,
+        *,
+        blueprint: Blueprint | list[Blueprint] | None = None,
+        docs: bool = False,
+        docsConfig: dict[str, Any] = docs_default_option,
+        corsConfig: dict[str, Any] = cors_default_option,
 ) -> Sanic[sanic.Config, SimpleNamespace]:
     app = Sanic(name, router=router)
 
@@ -236,5 +241,8 @@ def sanicBoot(
 if __name__ == "__main__":
     projectRootDir: Path = projectRootDir / "projectTemplate"
     # sanicBoot('sanic')
-    loadModels()
-    pass
+    # loadModels()
+    # pass
+
+    app = sanicBoot(__name__)
+    app.run(debug=True, host="0.0.0.0", port=5000)
