@@ -4,7 +4,7 @@
 @email   : yinghan22@163.com
 @create  : 2025/12/5 14:49
 """
-
+import os
 from configparser import ConfigParser
 from importlib import import_module
 from pathlib import Path
@@ -18,7 +18,7 @@ from tortoise import Model
 from sanic_boot.Config import Config
 from .core import *
 
-seperator = '/'
+seperator = os.sep
 
 projectRootDir = Path.cwd()
 from tortoise.contrib.sanic import register_tortoise
@@ -75,6 +75,7 @@ def loadModels():
         with open(moduleEntrypath, mode="w+"):
             pass
     moduleEntry: ModuleType = import_module(f"Models.__init__")
+    print(moduleEntry)
     ModelsRootDir = projectRootDir / 'Models'
     fileList: Iterator[Path] = ModelsRootDir.rglob("**/*.py")
     for fileName in fileList:
@@ -86,7 +87,7 @@ def loadModels():
             memberNameList: list[str] = dir(module)
             for memberName in memberNameList:
                 member: Any = getattr(module, memberName)
-                if inspect.isclass(member) and issubclass(member, Model):
+                if inspect.isclass(member) and issubclass(member, Model) and member is not Model:
                     if memberName not in dir(moduleEntry):
                         setattr(moduleEntry, memberName, member)
                     else:
@@ -168,6 +169,11 @@ def collectController(app: Sanic):
                     continue
                 # else:
                 routerInfo: dict = getattr(attr, "__viewRouter__")
+                if isinstance(routerInfo['handler'], staticmethod) is False:
+                    if not hasattr(module, 'staticSelf'):
+                        setattr(member, 'staticSelf', member())
+                    staticSelf = getattr(member, 'staticSelf')
+                    routerInfo['handler'] = getattr(staticSelf, attr.__name__)
                 # routerInfo["handler"] = staticmethod(routerInfo["handler"])
                 blueprint.add_route(**routerInfo)
             blueprintList.append(blueprint)
