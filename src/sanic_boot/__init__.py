@@ -92,10 +92,11 @@ def loadModels():
                         setattr(moduleEntry, memberName, member)
                     else:
                         raise Exception("Model name conflict")
+    return moduleEntry
 
 
 def initDatabase(app: Sanic):
-    loadModels()
+    models = loadModels()
 
     url: str = ""
     match Config.Database.dbtype:
@@ -128,7 +129,7 @@ def initDatabase(app: Sanic):
                 Config.Database.database,
                 f"?driver={Config.Database.driver}" if Config.Database.driver else "",
             )
-    register_tortoise(app=app, db_url=url, modules={"models": ["Models"]},
+    register_tortoise(app=app, db_url=url, modules={"models": [models]},
                       generate_schemas=Config.Database.generate_schemas)
 
 
