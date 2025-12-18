@@ -5,10 +5,7 @@
 @create  : 2025/12/3 16:12
 """
 
-import functools
-import inspect
 import re
-from typing import Optional, Type, overload, override
 
 
 def __insert_space__(text):
@@ -23,7 +20,7 @@ def Controller(*args, **kwargs):  # -> Callable[..., Any]:
     """
     Controller 控制器注册
 
-    :param uri <type:str> 命名参数，指定 Controller 的路由路径
+    :param kwargs['uri'] {str} 命名参数，指定 Controller 的路由路径
     """
     if (len(args) == 1 and type(args[0]) is str) or "uri" in kwargs:
         url: str = ""
@@ -50,7 +47,6 @@ def Controller(*args, **kwargs):  # -> Callable[..., Any]:
         return cls
 
     return decoratorNoting
-
 
 # class Controller:
 

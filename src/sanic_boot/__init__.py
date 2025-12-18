@@ -5,18 +5,20 @@
 @create  : 2025/12/5 14:49
 """
 
-import os
 from configparser import ConfigParser
 from importlib import import_module
 from pathlib import Path
 from types import SimpleNamespace, ModuleType
-from typing import Iterator, Literal, Optional
+from typing import Iterator
 
 import sanic
 from sanic import Sanic, Blueprint
-from sanic_boot.Config import Config
 from tortoise import Model
+
+from sanic_boot.Config import Config
 from .core import *
+
+seperator = '/'
 
 projectRootDir = Path.cwd()
 from tortoise.contrib.sanic import register_tortoise
@@ -75,7 +77,7 @@ def loadModels():
     moduleEntry: ModuleType = import_module(f"Models.__init__")
     fileList: Iterator[Path] = projectRootDir.rglob("Models/**/*.py")
     for fileName in fileList:
-        moduleName: str = str(fileName).split(os.sep)[-1][:-3]
+        moduleName: str = str(fileName).split(seperator)[-1][:-3]
         module: ModuleType = import_module(f"Models.{moduleName}")
         if moduleName == "__init__":
             continue
@@ -131,7 +133,7 @@ def collectViewRouter(app: Sanic):
     fileList: Iterator[Path] = projectRootDir.rglob("Views/**/*.py")
     for fileName in fileList:
         print(fileName)
-        moduleName: str = str(fileName).split(os.sep)[-1][:-3]
+        moduleName: str = str(fileName).split(seperator)[-1][:-3]
         module: ModuleType = import_module(f"Views.{moduleName}")
         for memberName in dir(module):
             member = getattr(module, memberName)
@@ -148,7 +150,7 @@ def collectController(app: Sanic):
     blueprintList = []
     for fileName in fileList:
         print(fileName)
-        moduleName: str = str(fileName).split(os.sep)[-1][:-3]
+        moduleName: str = str(fileName).split(seperator)[-1][:-3]
         module: ModuleType = import_module(f"Controller.{moduleName}")
         for memberName in dir(module):
             member = getattr(module, memberName)
@@ -199,14 +201,18 @@ docs_default_option = {
 
 
 def sanicBoot(
-    name: str,
-    router: str | None = None,
-    *,
-    blueprint: Blueprint | list[Blueprint] | None = None,
-    docs: bool = False,
-    docsConfig: dict[str, Any] = docs_default_option,
-    corsConfig: dict[str, Any] = cors_default_option,
+        name: str,
+        router: str | None = None,
+        *,
+        blueprint: Blueprint | list[Blueprint] | None = None,
+        docs: bool = False,
+        docsConfig=None,
+        corsConfig=None,
 ) -> Sanic[sanic.Config, SimpleNamespace]:
+    if corsConfig is None:
+        corsConfig = cors_default_option
+    if docsConfig is None:
+        docsConfig = docs_default_option
     app = Sanic(name, router=router)
 
     configFilePath: Path = projectRootDir / "config.ini"
