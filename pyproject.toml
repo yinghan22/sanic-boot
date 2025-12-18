@@ -6,8 +6,8 @@ readme = "README.md"
 authors = [{ name = "嬴寒", email = "yinghan22@163.com" }]
 requires-python = ">=3.14"
 dependencies = [
-    "sanic>=25.3.0",
-    "tortoise-orm>=0.25.1",
+    "sanic",
+    "tortoise-orm",
 ]
 
 [build-system]
