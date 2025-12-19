@@ -1,7 +1,7 @@
 [project]
 name = "sanic-boot"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.0.1"
+description = "A web framework base on Sanic"
 readme = "README.md"
 authors = [{ name = "嬴寒", email = "yinghan22@163.com" }]
 requires-python = ">=3.14"
