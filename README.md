@@ -103,5 +103,5 @@ async def gen(app: Sanic):
   `RequestMapping` 是 `sanic` 框架中类视图注册方法 `app.add_route (Class.as_view, routeString)` 的自动化实现。
 + `@[Get|Post|Head|Put|Delete|Patch|Options]Mapping(uri : str)`
   > `@GetMapping (uri : str)` 等装饰器是 `@RequestMapping ('/login', RequestMethod.GET)` 的简便写法。
-+ `@Task(schema : str)`
++ `@Task(name : str = None)`
   > 在 Tasks 目录下注册任务事件。
