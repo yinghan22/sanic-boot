@@ -34,9 +34,11 @@ if __name__ == "__main__":
 
 ```
 
+### 1. Create NORMAL route by common function (which can be with `async`)
+
 ```python
 from sanic import Request, text
-from sanic_boot.core import GetMapping
+from sanic_boot import GetMapping
 
 
 # 面向函数
@@ -45,9 +47,11 @@ async def index(request: Request):
     return text('Hello')
 ```
 
+### 2. Create Router View from class, which just collect the route -- A simple method instead of blueprint
+
 ```python
 from sanic import Request, text, json
-from sanic_boot import Controller, View, GetMapping, RequestMapping
+from sanic_boot import Controller, GetMapping, RequestMapping
 
 
 # 面向类
@@ -68,15 +72,19 @@ class PersonController:
         })
 ```
 
+### 3. Create Task by decorator `Task`, which can get a parameter named `name` or `taskName`. The only parameter is `None` as value.
+
 ```python
+import asyncio
 from sanic import Sanic
 from sanic_boot import Task
 
 
-@Task('/')
+@Task(name='')  # name 或 taskName 默认为 None
 async def gen(app: Sanic):
     while True:
-        pass
+        print([item for item in range(10)])
+        await asyncio.sleep(5000)
 ```
 
 ## Decorator Description
