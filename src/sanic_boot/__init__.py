@@ -76,7 +76,7 @@ def loadModels():
             pass
     moduleEntry: ModuleType = import_module(f"Models.__init__")
     print(moduleEntry)
-    ModelsRootDir = projectRootDir / 'Models'
+    ModelsRootDir = projectRootDir / "Models"
     fileList: Iterator[Path] = ModelsRootDir.rglob("**/*.py")
     for fileName in fileList:
         moduleName: str = str(fileName).split(seperator)[-1][:-3]
@@ -129,12 +129,11 @@ def initDatabase(app: Sanic):
                 Config.Database.database,
                 f"?driver={Config.Database.driver}" if Config.Database.driver else "",
             )
-    register_tortoise(app=app, db_url=url, modules={"models": [models]},
-                      generate_schemas=Config.Database.generate_schemas)
+    register_tortoise(app=app, db_url=url, modules={"models": [models]}, generate_schemas=Config.Database.generate_schemas)
 
 
 def collectViewRouter(app: Sanic):
-    viewRootDir = projectRootDir / 'Views'
+    viewRootDir = projectRootDir / "Views"
     fileList: Iterator[Path] = viewRootDir.rglob("**/*.py")
     for fileName in fileList:
         print(fileName)
@@ -151,7 +150,7 @@ def collectViewRouter(app: Sanic):
 
 
 def collectController(app: Sanic):
-    controllerRootDir = projectRootDir / 'Controller'
+    controllerRootDir = projectRootDir / "Controller"
     fileList: Iterator[Path] = controllerRootDir.rglob("**/*.py")
     blueprintList = []
     for fileName in fileList:
@@ -170,15 +169,32 @@ def collectController(app: Sanic):
                     continue
                 # else:
                 routerInfo: dict = getattr(attr, "__viewRouter__")
-                if isinstance(routerInfo['handler'], staticmethod) is False:
-                    if not hasattr(module, 'staticSelf'):
-                        setattr(member, 'staticSelf', member())
-                    staticSelf = getattr(member, 'staticSelf')
-                    routerInfo['handler'] = getattr(staticSelf, attr.__name__)
+                if "as_view" not in routerInfo["handler"].__qualname__:
+                    if not hasattr(module, "staticSelf"):
+                        setattr(member, "staticSelf", member())
+                    staticSelf = getattr(member, "staticSelf")
+                    routerInfo["handler"] = getattr(staticSelf, attr.__name__)
                 # routerInfo["handler"] = staticmethod(routerInfo["handler"])
                 blueprint.add_route(**routerInfo)
             blueprintList.append(blueprint)
     app.blueprint(blueprint=blueprintList)
+    return app
+
+
+def collectTask(app: Sanic):
+    taskRootDir = projectRootDir / "Tasks"
+    fileList: Iterator[Path] = taskRootDir.rglob("**/*.py")
+    for fileName in fileList:
+        print(fileName)
+        moduleName: str = str(fileName).split(seperator)[-1][:-3]
+        module: ModuleType = import_module(f"Tasks.{moduleName}")
+        for memberName in dir(module):
+            member = getattr(module, memberName)
+            if not hasattr(member, "__isTask__"):
+                continue
+            # else
+            conf = getattr(member, "__task__")
+            app.add_task(member, name=conf["name"])
     return app
 
 
@@ -241,12 +257,9 @@ def sanicBoot(
         app.update_config(cors_default_option)
     if docsConfig:
         app.update_config(docs_default_option)
-        # from sanic_openapi import swagger_blueprint
 
-        # app.blueprint(swagger_blueprint)
-        # a
-        # for item,value in docsConfig.items():
-        #     app.ext.openapi.
+    collectTask(app)
+
     return app
 
 
