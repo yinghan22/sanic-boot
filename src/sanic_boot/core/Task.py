@@ -5,40 +5,41 @@
 @create  : 2025/12/3 16:12
 """
 
-import functools
-from typing import Optional, Type
+import inspect
+from types import FunctionType
+from typing import Any, Callable
 
 
-class Task:
-    def __init__(self, *args, **kwargs):
-        self.cls: Optional[Type] = args[0] if len(args) >= 1 else None
-        self.uri = kwargs.get("uri") if "uri" in kwargs else None
+def Task(*args, **kwargs) -> Callable[..., Any]:
+    if callable(args[0]):
+        handler = args[0]
+        setattr(handler, "__isTask__", True)
+        setattr(handler, "__task__", {"name": None})
+        return handler
+    else:
+        handler: FunctionType
+        name: str
+        if len(args) == 1:
+            if inspect.isfunction(object=args[0]):
+                handler = args[0]
+            elif type(args[0]) is str:
+                name = args[0]
+        if "name" in kwargs:
+            name = kwargs["name"]
+        if "taskName" in kwargs:
+            name = kwargs["taskName"]
 
-        if self.cls is not None and self.uri is None:
-            self.uri = str(self.cls.__name__.replace("Controller", "")).lower().replace("index", "")
-            if self.uri == "" or self.uri == "/":
-                raise RuntimeError(f"the router of {self.cls.__name__} is conflict")
-        if self.cls is not None and self.uri is not None:
-            self.resetClass()
+        def __decorator__(*dArgs, **dKwargs) -> FunctionType:
+            nonlocal handler, name
 
-    def resetClass(self):
-        setattr(self.cls, "isController", True)
+            if len(dArgs) == 1:
+                if inspect.isfunction(object=dArgs[0]):
+                    handler = dArgs[0]
+            if name == "":
+                name = handler.__name__
 
-    def __call__(self, cls):
-        if self.cls is None:
-            self.cls = cls
+            setattr(handler, "__isTask__", True)
+            setattr(handler, "__task__", {"name": name})
+            return handler
 
-        if self.uri is None:
-            self.uri = str(cls.__name__.replace("Controller", "")).lower().replace("index", "")
-        if self.uri == "":
-            self.uri = "/"
-
-        @functools.wraps(cls)
-        def decorator(*args, **kwargs):
-            return self.cls
-
-        return decorator
-
-    def __set_name__(self, owner, name: str):
-        self.name = name
-        return owner
+        return __decorator__
