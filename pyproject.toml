@@ -1,13 +1,13 @@
 [project]
 name = "sanic-boot"
-version = "0.0.1"
+version = "0.0.2"
 description = "A web framework base on Sanic"
 readme = "README.md"
 authors = [{ name = "嬴寒", email = "yinghan22@163.com" }]
-requires-python = ">=3.14"
+requires-python = ">=3.9"
 dependencies = [
-    "sanic",
-    "tortoise-orm",
+    "sanic<=24.6",
+    "tortoise-orm<=0.21.4",
 ]
 
 [build-system]
