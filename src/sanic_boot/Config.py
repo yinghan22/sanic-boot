@@ -16,7 +16,7 @@ class Config:
         resource: set[dict[str, str]] = []
 
     class Database:
-        dbtype = "mysql"
+        dbtype = "sqlite"
         host = "127.0.0.1"
         port = 3306
         path = ""
