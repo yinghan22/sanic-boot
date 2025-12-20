@@ -57,7 +57,7 @@ from sanic_boot import Controller, GetMapping, RequestMapping
 # 面向类
 @Controller('/person')
 class PersonController:
-    # 使用 Views 装饰器后，若发现目标未继承自 HTTPMethodView、BaseView 中的任何一个，将会修改基类为 BaseView
+    # 使用 RequestMapping 装饰器后，若发现目标未继承自 HTTPMethodView，将会修改基类为 HTTPMethodView
     @RequestMapping('/login')
     class Login:
         async def get(self, request: Request):
