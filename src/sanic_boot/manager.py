@@ -10,10 +10,6 @@ import platform
 from pathlib import Path
 
 
-def main() -> None:
-    print("Hello", __name__)
-
-
 def sanicBootInit(__targetPath__) -> None:
     targetPath = Path(__targetPath__)
     if __targetPath__.startswith("/"):  # relative file path
@@ -22,7 +18,6 @@ def sanicBootInit(__targetPath__) -> None:
     currFilePath = __file__
     currDirPath = os.path.dirname(currFilePath)
     projectTemplatePath = os.path.join(currDirPath, 'projectTemplate', '*')
-    print(currDirPath)
     from_to = {'from': projectTemplatePath, 'to': targetPath}
     if osType == "Windows":
         cmd = 'copy {from} {to}'.format(**from_to)
