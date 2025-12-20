@@ -11,17 +11,21 @@ from pathlib import Path
 from types import SimpleNamespace, ModuleType
 from typing import Iterator
 
-import sanic
-from sanic import Sanic, Blueprint
-from tortoise import Model
+try:
+    import sanic
+    from sanic import Sanic, Blueprint
+    from tortoise import Model
+
+    from tortoise.contrib.sanic import register_tortoise
+except ModuleNotFoundError:
+    raise EnvironmentError('Please install sanic : uv add sanic tortoise-orm')
 
 from sanic_boot.Config import Config
 from .core import *
 
-seperator = os.sep
+separator = os.sep
 
 projectRootDir = Path.cwd()
-from tortoise.contrib.sanic import register_tortoise
 
 
 def initConfiguration(configFilePath) -> None:
@@ -37,7 +41,7 @@ def initConfiguration(configFilePath) -> None:
     }
 
     for section in configParser.sections():
-        print(section)
+        # print(section)
         configSectionName = f"{section[0].upper()}{section[1:]}"
 
         configSection = getattr(Config, configSectionName)
@@ -70,16 +74,16 @@ def initConfiguration(configFilePath) -> None:
 
 
 def loadModels():
-    moduleEntrypath = Path("Models/__init__.py")
-    if not moduleEntrypath.exists():
-        with open(moduleEntrypath, mode="w+"):
+    moduleEntryPath = Path("Models/__init__.py")
+    if not moduleEntryPath.exists():
+        with open(moduleEntryPath, mode="w+"):
             pass
     moduleEntry: ModuleType = import_module(f"Models.__init__")
-    print(moduleEntry)
+    # print(moduleEntry)
     ModelsRootDir = projectRootDir / "Models"
     fileList: Iterator[Path] = ModelsRootDir.rglob("**/*.py")
     for fileName in fileList:
-        moduleName: str = str(fileName).split(seperator)[-1][:-3]
+        moduleName: str = str(fileName).split(separator)[-1][:-3]
         module: ModuleType = import_module(f"Models.{moduleName}")
         if moduleName == "__init__":
             continue
@@ -136,8 +140,8 @@ def collectViewRouter(app: Sanic):
     viewRootDir = projectRootDir / "Views"
     fileList: Iterator[Path] = viewRootDir.rglob("**/*.py")
     for fileName in fileList:
-        print(fileName)
-        moduleName: str = str(fileName).split(seperator)[-1][:-3]
+        # print(fileName)
+        moduleName: str = str(fileName).split(separator)[-1][:-3]
         module: ModuleType = import_module(f"Views.{moduleName}")
         for memberName in dir(module):
             member = getattr(module, memberName)
@@ -154,8 +158,8 @@ def collectController(app: Sanic):
     fileList: Iterator[Path] = controllerRootDir.rglob("**/*.py")
     blueprintList = []
     for fileName in fileList:
-        print(fileName)
-        moduleName: str = str(fileName).split(seperator)[-1][:-3]
+        # print(fileName)
+        moduleName: str = str(fileName).split(separator)[-1][:-3]
         module: ModuleType = import_module(f"Controller.{moduleName}")
         for memberName in dir(module):
             member = getattr(module, memberName)
@@ -185,8 +189,8 @@ def collectTask(app: Sanic):
     taskRootDir = projectRootDir / "Tasks"
     fileList: Iterator[Path] = taskRootDir.rglob("**/*.py")
     for fileName in fileList:
-        print(fileName)
-        moduleName: str = str(fileName).split(seperator)[-1][:-3]
+        # print(fileName)
+        moduleName: str = str(fileName).split(separator)[-1][:-3]
         module: ModuleType = import_module(f"Tasks.{moduleName}")
         for memberName in dir(module):
             member = getattr(module, memberName)
