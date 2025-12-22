@@ -174,7 +174,7 @@ def collectController(app: Sanic):
                 # else:
                 routerInfo: dict = getattr(attr, "__viewRouter__")
                 if "as_view" not in routerInfo["handler"].__qualname__:
-                    if not hasattr(module, "staticSelf"):
+                    if not hasattr(member, "staticSelf"):
                         setattr(member, "staticSelf", member())
                     staticSelf = getattr(member, "staticSelf")
                     routerInfo["handler"] = getattr(staticSelf, attr.__name__)
