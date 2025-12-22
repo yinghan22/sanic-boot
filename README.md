@@ -129,7 +129,7 @@ async def gen(app: Sanic):
 
 ## Decorator Description
 
-+ `@Controller (uri : str = ''')`
++ `@Controller (uri : str = '')`
   > 装饰器 `Controller` 意在收集目标注解对象内部注册的路由，是 `sanic` 框架中 `blueprint` 蓝图系统的自动化实现。
   >
   > sanic 官方网站中提供了自动收集 blueprint 的辅助文件，能够帮助开发者给予蓝图系统快速构建路由系统。而装饰器 `Controller` 则延伸了官方方案，基于
