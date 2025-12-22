@@ -132,11 +132,11 @@ async def gen(app: Sanic):
 + `@Controller (uri : str = '')`
   > 装饰器 `Controller` 意在收集目标注解对象内部注册的路由，是 `sanic` 框架中 `blueprint` 蓝图系统的自动化实现。
   >
-  > sanic 官方网站中提供了自动收集 blueprint 的辅助文件，能够帮助开发者给予蓝图系统快速构建路由系统。而装饰器 `Controller` 则延伸了官方方案，基于
-  `Sprint Boot` 装饰器思路，提供能够相对完备的路由系统自动组装方案。
+  > sanic 官方网站中提供了自动收集 blueprint 的辅助文件，能够帮助开发者给予蓝图系统快速构建路由系统。而装饰器 `Controller` 则延伸了官方方案，参考
+  `Spring Boot` 装饰器思路，提供能够相对完备的路由系统自动组装方案。
   >
   > 装饰器 `Controller`允许不携带任何参数，此时将自动分配路由，分配的路由与目标注解的类名有关，类名推荐的格式为
-  `^[A-Z][A-Za-z0-9*]Controller$`
+  `^[A-Z][A-Za-z0-9]*Controller$`
   ，（即大写字母开头的有意义单词，并以单词 Controller
   > 结尾），分配所得路由为全小写且不含 `Controller`。如 `TestController` 的路由为 `test`，`TestTest2Controller` 的路由为 `test-test2`
   >
