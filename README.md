@@ -157,7 +157,7 @@ async def gen(app: Sanic):
 
 + [x] static files（简单映射）
 + [x] 基础路由
-+ [ ] Websocket
++ [x] Websocket
 + [ ] 路由上下文
 + [ ] 监听器
 + [ ] ASGI 模式
