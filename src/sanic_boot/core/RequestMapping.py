@@ -51,7 +51,10 @@ def RequestMapping(
 ):
     def decorator(target, *args, **kwargs) -> Any:
         setattr(target, __viewFlag__, True)
-        attr = {"uri": uri, "handler": target, "stream": stream}
+        attr = {"uri": uri, "handler": target, "stream": stream, 'host': host, 'strict_slashes': strict_slashes, 'version': version,
+                'name': name, 'ignore_body': ignore_body, 'apply': apply, 'subprotocols': subprotocols, 'websocket': websocket,
+                'unquote': unquote, 'static': static, 'version_prefix': version_prefix, 'error_format': error_format,
+                **ctx_kwargs}
         if inspect.isclass(target):
             if not issubclass(target, HTTPMethodView):
                 new_cls = type(
@@ -64,7 +67,7 @@ def RequestMapping(
                 new_cls.__doc__ = target.__doc__
                 new_cls.__module__ = target.__module__
                 target = new_cls
-                attr["handler"] = getattr(target, "as_view")()
+            attr["handler"] = getattr(target, "as_view")()
         elif inspect.isfunction(target) and requestMethods is not None:
             attr["methods"] = (
                 (

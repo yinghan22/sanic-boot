@@ -21,10 +21,11 @@ Python
 + [x] 自动装配类视图路由
 + [x] 自动装配 Background Task
 + [x] 自动装配模型类
++ [x] 文档
++ [x] Websocket
++ [x] 流式传输（Streaming）
 + [ ] 为 Controller 注入 CRUD 操作
 + [ ] 封装 APScheduler 定时任务框架
-+ [ ] Websocket
-+ [ ] 流式传输（Streaming）
 
 ## 安装
 
@@ -153,41 +154,80 @@ async def gen(app: Sanic):
 + `@Task(name : str = None)`
   > 在 Tasks 目录下注册任务事件。目前尚未想好如何以最佳的形式将 APScheduler 封装进去，故开发者可根据自己需要进行封装。
 
-## 目前已对 sanic 框架中下列勾选的内容做了二次封装
+[//]: # ()
 
-+ [x] static files（简单映射）
-+ [x] 基础路由
-+ [x] Websocket
-+ [ ] 路由上下文
-+ [ ] 监听器
-+ [ ] ASGI 模式
-+ [ ] 中间件
-+ [ ] 头处理
-+ [x] 后台任务（Background tasks）
-+ [x] 类视图（Class Based View）
-+ [x] 路径参数
-+ [ ] 代理配置
-+ [ ] 流式传输（Streaming）
-+ [ ] 路由系统中的版本控制
-+ [ ] 信号
-+ [ ] 命令（New in v24.12）
-+ [x] 蓝图（Blueprints）（基础封装）
-+ [ ] 异常
-+ [ ] 日志
-+ [ ] 测试
-+ [ ] 配置
-+ [ ] 自动加载/重载
-+ [ ] TLS/SSL/HTTPS
-+ [ ] 运行 Sanic
-+ [ ] 检查器（Inspector）
-+ [ ] 认证（Authentication）
-+ [x] 自动发现
-+ [ ] 跨域资源共享（CORS）
-+ [x] ORM (基于 tortoise-orm)
-+ [ ] 静态重定向（"Static" Redirects）
-+ [ ] 文档
-+ [ ] 安全方案
-+ [ ] 便携性（Convenience）
-+ [ ] Jinja 模板
-+ [ ] 依赖注入
-+ [ ] 验证（Validation）
+[//]: # (## 目前已对 sanic 框架中下列勾选的内容做了二次封装)
+
+[//]: # ()
+
+[//]: # (+ [x] static files（简单映射）)
+
+[//]: # (+ [x] 基础路由)
+
+[//]: # (+ [x] Websocket)
+
+[//]: # (+ [ ] 路由上下文)
+
+[//]: # (+ [ ] 监听器)
+
+[//]: # (+ [ ] ASGI 模式)
+
+[//]: # (+ [ ] 中间件)
+
+[//]: # (+ [ ] 头处理)
+
+[//]: # (+ [x] 后台任务（Background tasks）)
+
+[//]: # (+ [x] 类视图（Class Based View）)
+
+[//]: # (+ [x] 路径参数)
+
+[//]: # (+ [ ] 代理配置)
+
+[//]: # (+ [ ] 流式传输（Streaming）)
+
+[//]: # (+ [ ] 路由系统中的版本控制)
+
+[//]: # (+ [ ] 信号)
+
+[//]: # (+ [ ] 命令（New in v24.12）)
+
+[//]: # (+ [x] 蓝图（Blueprints）（基础封装）)
+
+[//]: # (+ [ ] 异常)
+
+[//]: # (+ [ ] 日志)
+
+[//]: # (+ [ ] 测试)
+
+[//]: # (+ [x] 配置)
+
+[//]: # (+ [ ] 自动加载/重载)
+
+[//]: # (+ [ ] TLS/SSL/HTTPS)
+
+[//]: # (+ [ ] 运行 Sanic)
+
+[//]: # (+ [ ] 检查器（Inspector）)
+
+[//]: # (+ [ ] 认证（Authentication）)
+
+[//]: # (+ [x] 自动发现)
+
+[//]: # (+ [ ] 跨域资源共享（CORS）)
+
+[//]: # (+ [x] ORM &#40;基于 tortoise-orm&#41;)
+
+[//]: # (+ [ ] 静态重定向（"Static" Redirects）)
+
+[//]: # (+ [x] 文档)
+
+[//]: # (+ [ ] 安全方案)
+
+[//]: # (+ [ ] 便携性（Convenience）)
+
+[//]: # (+ [ ] Jinja 模板)
+
+[//]: # (+ [ ] 依赖注入)
+
+[//]: # (+ [ ] 验证（Validation）)

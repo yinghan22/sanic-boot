@@ -1,6 +1,6 @@
 [project]
 name = "sanic-boot"
-version = "0.0.2"
+version = "0.0.3"
 description = "A web framework base on Sanic"
 readme = "README.md"
 authors = [{ name = "嬴寒", email = "yinghan22@163.com" }]
