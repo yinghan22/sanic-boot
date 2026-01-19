@@ -4,24 +4,24 @@
 @email   : yinghan22@163.com
 @create  : 2025/12/5 14:49
 """
+
 import os
 from configparser import ConfigParser
 from importlib import import_module
 from pathlib import Path
-from types import SimpleNamespace, ModuleType
+from types import ModuleType, SimpleNamespace
 from typing import Iterator
 
 try:
     import sanic
-    from sanic import Sanic, Blueprint
+    from sanic import Blueprint, Sanic
     from tortoise import Model
-
     from tortoise.contrib.sanic import register_tortoise
 except ModuleNotFoundError:
-    raise EnvironmentError('Please install sanic : uv add sanic tortoise-orm')
+    raise EnvironmentError("Please install sanic : uv add sanic tortoise-orm")
 
 from sanic_boot.Config import Config
-from .core import *
+from sanic_boot.core import *
 
 separator = os.sep
 
@@ -50,7 +50,6 @@ def initConfiguration(configFilePath) -> None:
         for fieldName in fieldNameList:
             field = getattr(configSection, fieldName)
             fieldType = type(field)
-            value: int | float | str | bool | None | list = None
             get = sectionFieldTypeActionMapping.get(fieldType.__name__)
             value = get(section, fieldName)
 
@@ -78,7 +77,7 @@ def loadModels():
     if not moduleEntryPath.exists():
         with open(moduleEntryPath, mode="w+"):
             pass
-    moduleEntry: ModuleType = import_module(f"Models.__init__")
+    moduleEntry: ModuleType = import_module("Models.__init__")
     # print(moduleEntry)
     ModelsRootDir = projectRootDir / "Models"
     fileList: Iterator[Path] = ModelsRootDir.rglob("**/*.py")
@@ -90,8 +89,12 @@ def loadModels():
         else:
             memberNameList: list[str] = dir(module)
             for memberName in memberNameList:
-                member: Any = getattr(module, memberName)
-                if inspect.isclass(member) and issubclass(member, Model) and member is not Model:
+                member = getattr(module, memberName)
+                if (
+                        inspect.isclass(member)
+                        and issubclass(member, Model)
+                        and member is not Model
+                ):
                     if memberName not in dir(moduleEntry):
                         setattr(moduleEntry, memberName, member)
                     else:
@@ -133,7 +136,12 @@ def initDatabase(app: Sanic):
                 Config.Database.database,
                 f"?driver={Config.Database.driver}" if Config.Database.driver else "",
             )
-    register_tortoise(app=app, db_url=url, modules={"models": [models]}, generate_schemas=Config.Database.generate_schemas)
+    register_tortoise(
+        app=app,
+        db_url=url,
+        modules={"models": [models]},
+        generate_schemas=Config.Database.generate_schemas,
+    )
 
 
 def collectViewRouter(app: Sanic):
@@ -150,7 +158,6 @@ def collectViewRouter(app: Sanic):
             # else
             router = getattr(member, "__viewRouter__")
             app.add_route(**router)
-    # app.add_route(handler, '/test', methods=["POST", "PUT"])
 
 
 def collectController(app: Sanic):
@@ -166,7 +173,9 @@ def collectController(app: Sanic):
             if not hasattr(member, "__controller__"):
                 continue
             # else
-            blueprint = Blueprint(member.__name__, url_prefix=getattr(member, "__controller__"))
+            blueprint = Blueprint(
+                member.__name__, url_prefix=getattr(member, "__controller__")
+            )
             for attrName in dir(member):
                 attr = getattr(member, attrName)
                 if not hasattr(attr, "__viewRouter__"):
@@ -185,7 +194,7 @@ def collectController(app: Sanic):
     return app
 
 
-def collectTask(app: Sanic):
+async def collectTask(app: Sanic):
     taskRootDir = projectRootDir / "Tasks"
     fileList: Iterator[Path] = taskRootDir.rglob("**/*.py")
     for fileName in fileList:
@@ -198,8 +207,7 @@ def collectTask(app: Sanic):
                 continue
             # else
             conf = getattr(member, "__task__")
-            app.add_task(member, name=conf["name"])
-    return app
+            await app.add_task(member, name=conf["name"])
 
 
 cors_default_option = {
@@ -251,7 +259,6 @@ def sanicBoot(
     initConfiguration(configFilePath)
 
     initDatabase(app=app)
-
     collectViewRouter(app)
     collectController(app)
 
@@ -262,7 +269,7 @@ def sanicBoot(
     if docsConfig:
         app.update_config(docs_default_option)
 
-    collectTask(app)
+    app.after_server_start(collectTask)
 
     return app
 
