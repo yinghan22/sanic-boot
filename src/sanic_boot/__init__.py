@@ -259,8 +259,13 @@ def sanicBoot(
     initConfiguration(configFilePath)
 
     initDatabase(app=app)
-    collectViewRouter(app)
-    collectController(app)
+
+    # collectViewRouter(app)
+    # collectController(app)
+
+    async def collectRouter(app: Sanic):
+        collectViewRouter(app)
+        collectController(app)
 
     for item in Config.Server.resource:
         app.static(item["router"], item["filePath"])
@@ -268,6 +273,9 @@ def sanicBoot(
         app.update_config(cors_default_option)
     if docsConfig:
         app.update_config(docs_default_option)
+
+    app.before_server_start(collectRouter)
+    app.reload_process_start(collectRouter)
 
     app.after_server_start(collectTask)
 
