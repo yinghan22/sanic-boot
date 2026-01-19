@@ -13,7 +13,6 @@ from pathlib import Path
 
 def sanicBootInit(tp) -> None:
     targetPath = Path(tp)
-    print('before join', targetPath)
     if tp.startswith("/"):  # relative file path
         targetPath = Path.cwd() / f".{tp}"
     elif tp == './':
@@ -23,7 +22,6 @@ def sanicBootInit(tp) -> None:
     projectTemplatePath = os.path.join(currDirPath, "projectTemplate.zip")
     src = projectTemplatePath
     dst = targetPath
-
     shutil.unpack_archive(src, dst)
 
 
@@ -47,7 +45,7 @@ def sanicBooter() -> None:
     parser = argparse.ArgumentParser(description="sanic-boot helper")
     subParser = parser.add_subparsers(dest="command")
 
-    initParser = subParser.add_parser("init", help="项目初始化命令")
+    initParser = subParser.add_parser("init", help="项目初始化命令（若项目中存在main.py，该命令可能会覆盖main.py文件）")
     initParser.add_argument("dir", help="the directory to create the project in/with.")
 
     helpParser = subParser.add_parser("help")
