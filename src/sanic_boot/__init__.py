@@ -11,6 +11,7 @@ from importlib import import_module
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import Iterator
+import inspect
 
 try:
     import sanic
@@ -90,11 +91,7 @@ def loadModels():
             memberNameList: list[str] = dir(module)
             for memberName in memberNameList:
                 member = getattr(module, memberName)
-                if (
-                        inspect.isclass(member)
-                        and issubclass(member, Model)
-                        and member is not Model
-                ):
+                if inspect.isclass(member) and issubclass(member, Model) and member is not Model:
                     if memberName not in dir(moduleEntry):
                         setattr(moduleEntry, memberName, member)
                     else:
@@ -173,9 +170,7 @@ def collectController(app: Sanic):
             if not hasattr(member, "__controller__"):
                 continue
             # else
-            blueprint = Blueprint(
-                member.__name__, url_prefix=getattr(member, "__controller__")
-            )
+            blueprint = Blueprint(member.__name__, url_prefix=getattr(member, "__controller__"))
             for attrName in dir(member):
                 attr = getattr(member, attrName)
                 if not hasattr(attr, "__viewRouter__"):
@@ -240,13 +235,13 @@ docs_default_option = {
 
 
 def sanicBoot(
-        name: str,
-        router: str | None = None,
-        *,
-        blueprint: Blueprint | list[Blueprint] | None = None,
-        docs: bool = False,
-        docsConfig=None,
-        corsConfig=None,
+    name: str,
+    router: str | None = None,
+    *,
+    blueprint: Blueprint | list[Blueprint] | None = None,
+    docs: bool = False,
+    docsConfig=None,
+    corsConfig=None,
 ) -> Sanic[sanic.Config, SimpleNamespace]:
     if corsConfig is None:
         corsConfig = cors_default_option
@@ -282,6 +277,7 @@ def sanicBoot(
     return app
 
 
+__all__ = ["sanicBoot", "Config"]
 if __name__ == "__main__":
     projectRootDir: Path = projectRootDir / "projectTemplate"
     # sanicBoot('sanic')
