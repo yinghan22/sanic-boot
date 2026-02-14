@@ -27,34 +27,44 @@ __viewFlag__ = "__isView__"
 __viewName__ = "__viewRouter__"
 
 
-def __isFunction__(target: Any) -> bool:
-    return inspect.isfunction(target)
-
-
 def RequestMapping(
-        uri: str,
-        requestMethods: list[RequestMethod] | RequestMethod | None = None,
-        host: Optional[Union[str, list[str]]] = None,
-        strict_slashes: Optional[bool] = None,
-        stream: bool = False,
-        version: Optional[Union[int, str, float]] = None,
-        name: Optional[str] = None,
-        ignore_body: bool = False,
-        apply: bool = True,
-        subprotocols: Optional[list[str]] = None,
-        websocket: bool = False,
-        unquote: bool = False,
-        static: bool = False,
-        version_prefix: str = "/v",
-        error_format: Optional[str] = None,
-        **ctx_kwargs: Any,
+    uri: str,
+    requestMethods: list[RequestMethod] | RequestMethod | None = None,
+    host: Optional[Union[str, list[str]]] = None,
+    strict_slashes: Optional[bool] = None,
+    stream: bool = False,
+    version: Optional[Union[int, str, float]] = None,
+    name: Optional[str] = None,
+    ignore_body: bool = False,
+    apply: bool = True,
+    subprotocols: Optional[list[str]] = None,
+    websocket: bool = False,
+    unquote: bool = False,
+    static: bool = False,
+    version_prefix: str = "/v",
+    error_format: Optional[str] = None,
+    **ctx_kwargs: Any,
 ):
     def decorator(target, *args, **kwargs) -> Any:
         setattr(target, __viewFlag__, True)
-        attr = {"uri": uri, "handler": target, "stream": stream, 'host': host, 'strict_slashes': strict_slashes, 'version': version,
-                'name': name, 'ignore_body': ignore_body, 'apply': apply, 'subprotocols': subprotocols, 'websocket': websocket,
-                'unquote': unquote, 'static': static, 'version_prefix': version_prefix, 'error_format': error_format,
-                **ctx_kwargs}
+        attr = {
+            "uri": uri,
+            "handler": target,
+            "stream": stream,
+            "host": host,
+            "strict_slashes": strict_slashes,
+            "version": version,
+            "name": name,
+            "ignore_body": ignore_body,
+            "apply": apply,
+            "subprotocols": subprotocols,
+            "websocket": websocket,
+            "unquote": unquote,
+            "static": static,
+            "version_prefix": version_prefix,
+            "error_format": error_format,
+            **ctx_kwargs,
+        }
         if inspect.isclass(target):
             if not issubclass(target, HTTPMethodView):
                 new_cls = type(
@@ -86,15 +96,15 @@ def RequestMapping(
 
 
 def GetMapping(
-        uri: str,
-        host: Optional[Union[str, list[str]]] = None,
-        strict_slashes: Optional[bool] = None,
-        version: Optional[Union[int, str, float]] = None,
-        name: Optional[str] = None,
-        ignore_body: bool = True,
-        version_prefix: str = "/v",
-        error_format: Optional[str] = None,
-        **ctx_kwargs: Any,
+    uri: str,
+    host: Optional[Union[str, list[str]]] = None,
+    strict_slashes: Optional[bool] = None,
+    version: Optional[Union[int, str, float]] = None,
+    name: Optional[str] = None,
+    ignore_body: bool = True,
+    version_prefix: str = "/v",
+    error_format: Optional[str] = None,
+    **ctx_kwargs: Any,
 ):
     return RequestMapping(
         uri,
@@ -111,15 +121,15 @@ def GetMapping(
 
 
 def PutMapping(
-        uri: str,
-        host: Optional[Union[str, list[str]]] = None,
-        strict_slashes: Optional[bool] = None,
-        version: Optional[Union[int, str, float]] = None,
-        name: Optional[str] = None,
-        ignore_body: bool = True,
-        version_prefix: str = "/v",
-        error_format: Optional[str] = None,
-        **ctx_kwargs: Any,
+    uri: str,
+    host: Optional[Union[str, list[str]]] = None,
+    strict_slashes: Optional[bool] = None,
+    version: Optional[Union[int, str, float]] = None,
+    name: Optional[str] = None,
+    ignore_body: bool = True,
+    version_prefix: str = "/v",
+    error_format: Optional[str] = None,
+    **ctx_kwargs: Any,
 ) -> Callable[[Callable[[Any], Any]], Any]:
     return RequestMapping(
         uri,
@@ -136,15 +146,15 @@ def PutMapping(
 
 
 def PostMapping(
-        uri: str,
-        host: Optional[Union[str, list[str]]] = None,
-        strict_slashes: Optional[bool] = None,
-        version: Optional[Union[int, str, float]] = None,
-        name: Optional[str] = None,
-        ignore_body: bool = True,
-        version_prefix: str = "/v",
-        error_format: Optional[str] = None,
-        **ctx_kwargs: Any,
+    uri: str,
+    host: Optional[Union[str, list[str]]] = None,
+    strict_slashes: Optional[bool] = None,
+    version: Optional[Union[int, str, float]] = None,
+    name: Optional[str] = None,
+    ignore_body: bool = True,
+    version_prefix: str = "/v",
+    error_format: Optional[str] = None,
+    **ctx_kwargs: Any,
 ) -> Callable[[Callable[[Any], Any]], Any]:
     return RequestMapping(
         uri,
@@ -161,15 +171,15 @@ def PostMapping(
 
 
 def DeleteMapping(
-        uri: str,
-        host: Optional[Union[str, list[str]]] = None,
-        strict_slashes: Optional[bool] = None,
-        version: Optional[Union[int, str, float]] = None,
-        name: Optional[str] = None,
-        ignore_body: bool = True,
-        version_prefix: str = "/v",
-        error_format: Optional[str] = None,
-        **ctx_kwargs: Any,
+    uri: str,
+    host: Optional[Union[str, list[str]]] = None,
+    strict_slashes: Optional[bool] = None,
+    version: Optional[Union[int, str, float]] = None,
+    name: Optional[str] = None,
+    ignore_body: bool = True,
+    version_prefix: str = "/v",
+    error_format: Optional[str] = None,
+    **ctx_kwargs: Any,
 ) -> Callable[[Callable[[Any], Any]], Any]:
     return RequestMapping(
         uri,
@@ -186,15 +196,15 @@ def DeleteMapping(
 
 
 def HeadMapping(
-        uri: str,
-        host: Optional[Union[str, list[str]]] = None,
-        strict_slashes: Optional[bool] = None,
-        version: Optional[Union[int, str, float]] = None,
-        name: Optional[str] = None,
-        ignore_body: bool = True,
-        version_prefix: str = "/v",
-        error_format: Optional[str] = None,
-        **ctx_kwargs: Any,
+    uri: str,
+    host: Optional[Union[str, list[str]]] = None,
+    strict_slashes: Optional[bool] = None,
+    version: Optional[Union[int, str, float]] = None,
+    name: Optional[str] = None,
+    ignore_body: bool = True,
+    version_prefix: str = "/v",
+    error_format: Optional[str] = None,
+    **ctx_kwargs: Any,
 ) -> Callable[[Callable[[Any], Any]], Any]:
     return RequestMapping(
         uri,
