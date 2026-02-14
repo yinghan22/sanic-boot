@@ -5,13 +5,13 @@
 @create  : 2025/12/5 14:49
 """
 
+import inspect
 import os
 from configparser import ConfigParser
 from importlib import import_module
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
-from typing import Iterator
-import inspect
+from typing import Iterator, Callable
 
 try:
     import sanic
@@ -235,13 +235,13 @@ docs_default_option = {
 
 
 def sanicBoot(
-    name: str,
-    router: str | None = None,
-    *,
-    blueprint: Blueprint | list[Blueprint] | None = None,
-    docs: bool = False,
-    docsConfig=None,
-    corsConfig=None,
+        name: str,
+        router: str | None = None,
+        *,
+        blueprint: Blueprint | list[Blueprint] | None = None,
+        docs: bool = False,
+        docsConfig=None,
+        corsConfig=None,
 ) -> Sanic[sanic.Config, SimpleNamespace]:
     if corsConfig is None:
         corsConfig = cors_default_option
