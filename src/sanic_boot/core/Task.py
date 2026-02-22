@@ -11,7 +11,7 @@ from typing import Any, Callable
 
 
 def Task(*args, **kwargs) -> Callable[..., Any]:
-    if callable(args[0]):
+    if len(args) > 0 and callable(args[0]):
         handler = args[0]
         setattr(handler, "__isTask__", True)
         setattr(handler, "__task__", {"name": None})

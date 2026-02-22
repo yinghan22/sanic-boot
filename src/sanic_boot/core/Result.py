@@ -14,6 +14,10 @@ class Result:
         server_error = 500
 
     @staticmethod
+    def error(message: str | None = None):
+        return json({"status": Result.Status.server_error, "message": message, "data": None})
+
+    @staticmethod
     def success(data, message: str | None = None):
         return json(
             {
