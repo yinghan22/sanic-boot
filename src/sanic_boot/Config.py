@@ -13,7 +13,7 @@ class Config:
         debug = True
         auto_reload = True
         access_log = True
-        resource: set[dict[str, str]] = []
+        resource: list[dict[str, str]] = []
 
     class Database:
         dbtype = "sqlite"
