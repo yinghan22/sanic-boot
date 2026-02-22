@@ -8,9 +8,10 @@
 import types
 
 import sanic
+from sanic.request import Request
 import tortoise
 
-from sanic_boot.core import PostMapping
+from sanic_boot.core.RequestMapping import PostMapping
 from sanic_boot.core.Result import Result
 
 
@@ -19,6 +20,10 @@ def relateUri(baseUri, uri):
     uri = uri[:-1] if uri.endswith("/") else uri
     uri = uri[1:] if uri.startswith("/") else uri
     return baseUri, uri
+
+
+def nullAsNone(item):
+    return None if item == "null" else item
 
 
 class CRUD:
@@ -39,6 +44,7 @@ class CRUD:
     """
 
     class Flag:
+        all = 0b1111
         create = C = 0b1000
         query = select = read = R = 0b0100
         modify = update = U = 0b0010
@@ -86,9 +92,11 @@ class CRUD:
             nonlocal Model, uri, baseUri, fields_list, pk_name
 
             @PostMapping(uri="/".join((baseUri, uri)))
-            async def createHandler(self, request: sanic.Request):
+            async def createHandler(self: type, request: Request):
+                nonlocal fields_list
+                assert request.form is not None
                 param = {
-                    item: request.form.get(item)
+                    item: request.form.get(item, None)
                     for item in fields_list
                     if item in request.form
                 }
@@ -96,7 +104,9 @@ class CRUD:
                     param = await clazz.before_create(request, param)
                 __data__ = Model(**param)
                 await __data__.save()
-                __data__ = dict(__data__)
+                __data__ = {
+                    fieldName: getattr(__data__, fieldName) for fieldName in fields_list
+                }
                 if hasattr(clazz, "after_create"):
                     __data__ = await clazz.after_create(__data__)
                 if hasattr(clazz, "created"):
@@ -142,10 +152,9 @@ class CRUD:
         def wrapper(clazz: type):
             nonlocal Model, uri, baseUri, fields_list, pk_name
 
-            nullAsNone = lambda item: None if item == "null" else item
-
             @PostMapping(uri="/".join((baseUri, uri, "<id>")))
             async def updateHandler(self, request: sanic.Request, id):
+                assert request.form is not None
                 __data__ = await Model.filter(**{pk_name: id}).first()
                 if not __data__:
                     raise RuntimeError("主键值不存在")
@@ -161,7 +170,10 @@ class CRUD:
                     await __data__.update_from_dict(content)
                     await __data__.save()
                 if hasattr(clazz, "after_update"):
-                    __data__ = dict(__data__)
+                    __data__ = {
+                        fieldName: getattr(__data__, fieldName)
+                        for fieldName in fields_list
+                    }
                     __data__ = await clazz.after_update(__data__)
 
                 if hasattr(clazz, "updated"):
@@ -187,7 +199,9 @@ class CRUD:
             nonlocal Model, uri, baseUri, fields_list, pk_name
 
             @PostMapping(uri="/".join((baseUri, uri, "<id>")))
-            async def deleteHandler(self, request: sanic.Request, id):
+            async def deleteHandler(self: type, request: sanic.Request, id):
+                assert request.form is not None
+                # TODO
                 return Result.success({})
 
             setattr(clazz, "deleteHandler", types.MethodType(deleteHandler, clazz))

@@ -7,11 +7,27 @@
 
 import inspect
 import os
-from configparser import ConfigParser
 from importlib import import_module
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import Iterator, Callable
+from sanic_boot.core.Controller import Controller
+from sanic_boot.core.crud import CRUD
+from sanic_boot.core.RequestMapping import (
+    DeleteMapping,
+    GetMapping,
+    HeadMapping,
+    PostMapping,
+    PutMapping,
+    RequestMapping,
+    RequestMethod,
+    WebSocket,
+    Websocket,
+    websocket,
+)
+from sanic_boot.core.Result import Result
+from sanic_boot.core.Task import Task
+
 
 try:
     import sanic
@@ -22,7 +38,10 @@ except ModuleNotFoundError:
     raise EnvironmentError("Please install sanic : uv add sanic tortoise-orm")
 
 from sanic_boot.Config import Config
-from sanic_boot.core import *
+
+# from sanic_boot.core import *
+from configparser import ConfigParser
+
 
 separator = os.sep
 
@@ -52,6 +71,7 @@ def initConfiguration(configFilePath) -> None:
             field = getattr(configSection, fieldName)
             fieldType = type(field)
             get = sectionFieldTypeActionMapping.get(fieldType.__name__)
+            assert get is not None
             value = get(section, fieldName)
 
             if fieldName in ["resource"]:
@@ -91,7 +111,11 @@ def loadModels():
             memberNameList: list[str] = dir(module)
             for memberName in memberNameList:
                 member = getattr(module, memberName)
-                if inspect.isclass(member) and issubclass(member, Model) and member is not Model:
+                if (
+                    inspect.isclass(member)
+                    and issubclass(member, Model)
+                    and member is not Model
+                ):
                     if memberName not in dir(moduleEntry):
                         setattr(moduleEntry, memberName, member)
                     else:
@@ -170,7 +194,9 @@ def collectController(app: Sanic):
             if not hasattr(member, "__controller__"):
                 continue
             # else
-            blueprint = Blueprint(member.__name__, url_prefix=getattr(member, "__controller__"))
+            blueprint = Blueprint(
+                member.__name__, url_prefix=getattr(member, "__controller__")
+            )
             for attrName in dir(member):
                 attr = getattr(member, attrName)
                 if not hasattr(attr, "__viewRouter__"):
@@ -202,7 +228,7 @@ async def collectTask(app: Sanic):
                 continue
             # else
             conf = getattr(member, "__task__")
-            await app.add_task(member, name=conf["name"])
+            app.add_task(member, name=conf["name"])
 
 
 cors_default_option = {
@@ -235,20 +261,18 @@ docs_default_option = {
 
 
 def sanicBoot(
-        name: str,
-        router: str | None = None,
-        *,
-        blueprint: Blueprint | list[Blueprint] | None = None,
-        docs: bool = False,
-        docsConfig=None,
-        corsConfig=None,
+    name: str,
+    *,
+    docs: bool = False,
+    docsConfig=None,
+    corsConfig=None,
+    **kwargs,
 ) -> Sanic[sanic.Config, SimpleNamespace]:
     if corsConfig is None:
         corsConfig = cors_default_option
     if docsConfig is None:
         docsConfig = docs_default_option
-    app = Sanic(name, router=router)
-
+    app = Sanic(name, **kwargs)
     configFilePath: Path = projectRootDir / "config.ini"
 
     initConfiguration(configFilePath)
@@ -277,7 +301,25 @@ def sanicBoot(
     return app
 
 
-__all__ = ["sanicBoot", "Config"]
+__all__ = [
+    "sanicBoot",
+    "Config",
+    "Controller",
+    "RequestMethod",
+    "RequestMapping",
+    "GetMapping",
+    "PutMapping",
+    "PostMapping",
+    "DeleteMapping",
+    "HeadMapping",
+    "WebSocket",
+    "Websocket",
+    "websocket",
+    "Result",
+    "Task",
+    "CRUD",
+]
+
 if __name__ == "__main__":
     projectRootDir: Path = projectRootDir / "projectTemplate"
     # sanicBoot('sanic')

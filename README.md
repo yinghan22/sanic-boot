@@ -157,7 +157,7 @@ async def gen(app: Sanic):
 + `@CRUD.crud(model: type[tortoise.Model], baseUri: str, flag : int = 0, createName: str = 'create', readName: str = 'query', updateName: 
 str = 'modify', 
 deleteName: str = 'delete')`
-  > 使用 `CRUD` 对基础操作进行统一配置，是对 `@CRUD.[create|read|update|delete](...)` 的快捷书写形式
+  > 使用 `CRUD` 对基础操作进行统一配置，是对 `@CRUD.[create|read|update|delete](...)` 的快捷书写形式。CRUD装饰器仅可对控制器`Controller`使用。
   >
   > + `model : type[tortoise.Model]`  该参数必须是 Model 类的子类，不能为空，后续所有操作都需要使用 model 类操作数据库记录
   >

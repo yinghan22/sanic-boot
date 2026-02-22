@@ -7,7 +7,7 @@
 
 import inspect
 from enum import Enum
-from typing import Callable, Any, Optional, Union
+from typing import Any, Optional, Union
 
 from sanic.views import HTTPMethodView
 
@@ -43,9 +43,9 @@ def RequestMapping(
     static: bool = False,
     version_prefix: str = "/v",
     error_format: Optional[str] = None,
-    **ctx_kwargs: Any,
+    **kwargs,
 ):
-    def decorator(target, *args, **kwargs) -> Any:
+    def decorator(target: Any) -> Any:
         setattr(target, __viewFlag__, True)
         attr = {
             "uri": uri,
@@ -63,7 +63,7 @@ def RequestMapping(
             "static": static,
             "version_prefix": version_prefix,
             "error_format": error_format,
-            **ctx_kwargs,
+            **kwargs,
         }
         if inspect.isclass(target):
             if not issubclass(target, HTTPMethodView):
@@ -126,11 +126,11 @@ def PutMapping(
     strict_slashes: Optional[bool] = None,
     version: Optional[Union[int, str, float]] = None,
     name: Optional[str] = None,
-    ignore_body: bool = True,
+    ignore_body: bool = False,
     version_prefix: str = "/v",
     error_format: Optional[str] = None,
     **ctx_kwargs: Any,
-) -> Callable[[Callable[[Any], Any]], Any]:
+):
     return RequestMapping(
         uri,
         RequestMethod.PUT,
@@ -151,11 +151,11 @@ def PostMapping(
     strict_slashes: Optional[bool] = None,
     version: Optional[Union[int, str, float]] = None,
     name: Optional[str] = None,
-    ignore_body: bool = True,
+    ignore_body: bool = False,
     version_prefix: str = "/v",
     error_format: Optional[str] = None,
     **ctx_kwargs: Any,
-) -> Callable[[Callable[[Any], Any]], Any]:
+):
     return RequestMapping(
         uri,
         RequestMethod.POST,
@@ -176,11 +176,11 @@ def DeleteMapping(
     strict_slashes: Optional[bool] = None,
     version: Optional[Union[int, str, float]] = None,
     name: Optional[str] = None,
-    ignore_body: bool = True,
+    ignore_body: bool = False,
     version_prefix: str = "/v",
     error_format: Optional[str] = None,
     **ctx_kwargs: Any,
-) -> Callable[[Callable[[Any], Any]], Any]:
+):
     return RequestMapping(
         uri,
         RequestMethod.DELETE,
@@ -201,11 +201,11 @@ def HeadMapping(
     strict_slashes: Optional[bool] = None,
     version: Optional[Union[int, str, float]] = None,
     name: Optional[str] = None,
-    ignore_body: bool = True,
+    ignore_body: bool = False,
     version_prefix: str = "/v",
     error_format: Optional[str] = None,
     **ctx_kwargs: Any,
-) -> Callable[[Callable[[Any], Any]], Any]:
+):
     return RequestMapping(
         uri,
         RequestMethod.HEAD,

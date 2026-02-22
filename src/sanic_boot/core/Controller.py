@@ -30,7 +30,11 @@ def Controller(target: Optional[type] = None, uri: Optional[str] = None):
         assert clazz is not None
         if uri is None:
             inner_url = clazz.__name__
-            inner_url = __to_kebab_case__(inner_url[: -len("Controller")] if inner_url.endswith("Controller") else url)
+            inner_url = __to_kebab_case__(
+                inner_url[: -len("Controller")]
+                if inner_url.endswith("Controller")
+                else inner_url
+            )
         else:
             inner_url = uri
         assert inner_url is not None

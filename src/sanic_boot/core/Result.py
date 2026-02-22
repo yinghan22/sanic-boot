@@ -4,6 +4,7 @@
 @email   : yinghan22@163.com
 @create  : 2026/02/14 14:42
 """
+
 from sanic import json
 
 
@@ -13,9 +14,11 @@ class Result:
         server_error = 500
 
     @staticmethod
-    def success(data, message: str = None):
-        return json({
-            'status': Result.Status.success,
-            'data': data,
-            'message': message,
-        })
+    def success(data, message: str | None = None):
+        return json(
+            {
+                "status": Result.Status.success,
+                "data": data,
+                "message": message,
+            }
+        )
