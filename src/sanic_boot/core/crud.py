@@ -32,7 +32,7 @@ class CRUD:
 
     当多装饰器组合使用时，请按照**人性化逻辑顺序**进行书写，即：先书写`Controller`，再书写在 `CRUD`。（当然你也可以忽视此建议）
 
-    此外，CRUD 允许独立使用 create、modify、delete、query 装饰器，
+    此外，CRUD 允许独立使用 create、modify、delete、select 装饰器，
 
     建议用例（recommend usage implement）
     ```
@@ -56,7 +56,7 @@ class CRUD:
         baseUri: str = "",
         flag: int = 0,
         createName: str = "create",
-        readName: str = "query",
+        readName: str = "select",
         updateName: str = "modify",
         deleteName: str = "delete",
     ):
@@ -69,7 +69,7 @@ class CRUD:
             if bool(flag & CRUD.Flag.C):
                 clazz = CRUD.create(model, uri=createName, baseUri=baseUri)(clazz)
             if bool(flag & CRUD.Flag.R):
-                clazz = CRUD.read(model, uri=readName, baseUri=baseUri)(clazz)
+                clazz = CRUD.select(model, uri=readName, baseUri=baseUri)(clazz)
             if bool(flag & CRUD.Flag.U):
                 clazz = CRUD.update(model, uri=updateName, baseUri=baseUri)(clazz)
             if bool(flag & CRUD.Flag.D):
@@ -107,8 +107,6 @@ class CRUD:
                 __data__ = {
                     fieldName: getattr(__data__, fieldName) for fieldName in fields_list
                 }
-                if hasattr(clazz, "after_create"):
-                    __data__ = await clazz.after_create(__data__)
                 if hasattr(clazz, "created"):
                     __data__ = await clazz.created(request, __data__)
                 return Result.success(data=__data__)
@@ -119,7 +117,7 @@ class CRUD:
         return wrapper
 
     @staticmethod
-    def read(model: type[tortoise.Model], uri: str = "", baseUri: str = ""):
+    def select(model: type[tortoise.Model], uri: str = "", baseUri: str = ""):
         Model = model
         fields_list = getattr(Model, "_meta").fields
         pk_name = getattr(Model, "_meta").pk_attr
@@ -131,8 +129,21 @@ class CRUD:
 
             @PostMapping(uri="/".join((baseUri, uri)))
             async def readHandler(self, request: sanic.Request):
-                # TODO
-                return Result.success({})
+                raw_condition: dict = request.json()
+                condition = {}
+
+                for field in fields_list:
+                    if field in raw_condition:
+                        value = raw_condition.get(field)
+                        key = f"{field}__in" if type(value) is list else field
+                        condition[key] = value
+
+                if hasattr(clazz, "select_condition"):
+                    condition = await clazz.select_condition(request, condition)
+                __data__ = await Model.filter(**condition)
+                if hasattr(clazz, "selected"):
+                    __data__ = await clazz.selected(request, __data__)
+                return Result.success(data=__data__)
 
             setattr(clazz, "readHandler", types.MethodType(readHandler, clazz))
 
@@ -169,14 +180,11 @@ class CRUD:
                 if content:
                     await __data__.update_from_dict(content)
                     await __data__.save()
-                if hasattr(clazz, "after_update"):
+                if hasattr(clazz, "updated"):
                     __data__ = {
                         fieldName: getattr(__data__, fieldName)
                         for fieldName in fields_list
                     }
-                    __data__ = await clazz.after_update(__data__)
-
-                if hasattr(clazz, "updated"):
                     __data__ = await clazz.updated(request, __data__)
                 return Result.success(__data__)
 
@@ -202,7 +210,8 @@ class CRUD:
             async def deleteHandler(self: type, request: sanic.Request, id):
                 assert request.form is not None
                 # TODO
-                return Result.success({})
+                await Model(id=id).delete()
+                return Result.success(data=None, message="删除成功")
 
             setattr(clazz, "deleteHandler", types.MethodType(deleteHandler, clazz))
 

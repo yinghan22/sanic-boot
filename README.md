@@ -24,8 +24,9 @@ Python
 + [x] 文档
 + [x] Websocket
 + [x] 流式传输（Streaming）
-+ [ ] 为 Controller 注入 CRUD 操作
++ [x] 为 Controller 注入 CRUD 操作
 + [ ] 封装 APScheduler 定时任务框架
++ [ ] 更符合人性化、更规范的异常处理 
 
 ## 安装
 
@@ -179,17 +180,19 @@ str = 'modify'`  当且仅当 CRUD 的 flag 取值中对应的基本操作激活
   的相关装饰器生成数据库基本操作，因此强烈建议不要在相关的接口中使用`CRUD`装饰生成其他模型的`CRUD`接口。此外，`CRUD`
   装饰器生成的接口仅是基本的数据库操作，对于复杂的关联性操作，请自定义接口进行实现。
 
-  > 在使用`CRUD`装饰器时，允许开发者对运行时的操作数据进行干预。
+  > **提醒**：查询装饰器`select`仅支持两种查询方式：`select ... from ... where <field-name> = <field-value>` 以及 `select ... from ...where <field-name> in (...)`，多个字段之间使用 **与** 逻辑。
+
+  > 在使用 `CRUD` 装饰器时，允许开发者对运行时的操作数据进行干预。
   > 1. `create`
   >> 1. `before_create` 创建数据实例之前
-  >> 2. `after_create` 创建数据实例并获取数据的字典（`dict`）之后
-  >> 3. `create` 在执行完`after_create`之后
-  > 2. `read`
-  > > 1. 432
+  >> 2. `create` 创建数据实例并获取数据的字典（`dict`）之后
+  > 2. `select`
+  > > 1. `select_condition` 收集条件之后
+  > > 2. `selected` 查询数据之后
   > 3. `update`
   > > 1. `before_update` 收集完更新字段之后，更新数据之前
-  > > 2. `after_update` 更新数据记录并获取数据的字典（`dict`）之后
-  > > 3. `updated` 在执行完`after_update`之后
+  > > 3. `updated` 更新数据记录并获取数据的字典（`dict`）之后
   > 4. `delete`
   > > 1. `after_delete` 删除数据之后
-  > > > **注意**：`delete`删除数据库记录的操作最好自定义实现，除非你确定要实际删除指定的数据记录（）
+  > > > **注意**：`delete` 删除数据库记录的操作最好自定义实现，除非你确定要实际删除指定的数据记录
+  > 以上所有函数都会将request和condition/data传入供自定义逻辑使用。
