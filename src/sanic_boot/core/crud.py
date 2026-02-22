@@ -128,8 +128,10 @@ class CRUD:
             nonlocal Model, uri, baseUri, fields_list, pk_name
 
             @PostMapping(uri="/".join((baseUri, uri)))
-            async def readHandler(self, request: sanic.Request):
-                raw_condition: dict = request.json()
+            async def selectHandler(self, request: sanic.Request):
+                raw_condition: dict | None = request.json()
+                assert raw_condition is not None
+
                 condition = {}
 
                 for field in fields_list:
@@ -145,7 +147,7 @@ class CRUD:
                     __data__ = await clazz.selected(request, __data__)
                 return Result.success(data=__data__)
 
-            setattr(clazz, "readHandler", types.MethodType(readHandler, clazz))
+            setattr(clazz, "selectHandler", types.MethodType(selectHandler, clazz))
 
             return clazz
 
@@ -210,8 +212,11 @@ class CRUD:
             async def deleteHandler(self: type, request: sanic.Request, id):
                 assert request.form is not None
                 # TODO
-                await Model(id=id).delete()
-                return Result.success(data=None, message="删除成功")
+                await Model(**{pk_name: id}).delete()
+                data = None
+                if hasattr(clazz, "deleted"):
+                    data = await clazz.deleted(request, id)
+                return Result.success(data=data, message="删除成功")
 
             setattr(clazz, "deleteHandler", types.MethodType(deleteHandler, clazz))
 

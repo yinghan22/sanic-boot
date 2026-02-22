@@ -193,6 +193,6 @@ str = 'modify'`  当且仅当 CRUD 的 flag 取值中对应的基本操作激活
   > > 1. `before_update` 收集完更新字段之后，更新数据之前
   > > 3. `updated` 更新数据记录并获取数据的字典（`dict`）之后
   > 4. `delete`
-  > > 1. `after_delete` 删除数据之后
+  > > 1. `deleted` 删除数据之后
   > > > **注意**：`delete` 删除数据库记录的操作最好自定义实现，除非你确定要实际删除指定的数据记录
   > 以上所有函数都会将request和condition/data传入供自定义逻辑使用。
